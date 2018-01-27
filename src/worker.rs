@@ -108,7 +108,7 @@ impl Worker {
 
             match self.reenqueue(&connection, &buffer) {
                 Ok(_) => {
-                    let mut buffer = vec![];
+                    buffer = vec![];
                 },
                 Err(e) => {
                     println!("there was an error when reenqueuing");
