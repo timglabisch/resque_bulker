@@ -4,6 +4,7 @@ use redis::PipelineCommands;
 use std::time::{SystemTime, Duration};
 use redis::RedisError;
 use std::thread;
+use std::fmt::Write;
 
 pub struct DequeueResult {
     queue: String,
@@ -105,8 +106,10 @@ impl Worker {
 
             println!("try to reenqueue {} messages", buffer.len());
 
-            match self.reenqueue(&connection, buffer) {
-                Ok(_) => {},
+            match self.reenqueue(&connection, &buffer) {
+                Ok(_) => {
+                    let mut buffer = vec![];
+                },
                 Err(e) => {
                     println!("there was an error when reenqueuing");
                     continue;
@@ -122,7 +125,7 @@ impl Worker {
 
     }
 
-    pub fn reenqueue(&self, con : &Connection, data : Vec<DequeueResult>) -> Result((), Box<::std::error::Error>) {
+    pub fn reenqueue(&self, con : &Connection, data : &Vec<DequeueResult>) -> Result<(), Box<::std::error::Error>> {
 
         let data_buffer = data
             .iter()
@@ -137,7 +140,7 @@ impl Worker {
         buffer.write_str(&data_buffer)?;
         buffer.write_str("]}")?;
 
-        let enqueue = ::redis::cmd("rpush")
+        let enqueue: () = ::redis::cmd("rpush")
             .arg("resque:queue:default:foo")
             .arg(&buffer)
             .query(con)?;
