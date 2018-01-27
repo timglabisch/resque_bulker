@@ -62,6 +62,12 @@ impl Worker {
             };
 
             loop {
+
+                // could happen in an error case.
+                if buffer.len() >= 500 {
+                    break;
+                }
+
                 let msg : DequeueResult = match self.dequeue(&connection) {
                     Ok(Some(res)) => {
                         res
@@ -97,24 +103,46 @@ impl Worker {
                 continue;
             }
 
+            println!("try to reenqueue {} messages", buffer.len());
 
-            let xxx = buffer
-                .iter()
-                .map(|d : &DequeueResult| {
-                    d.raw.clone()
-                })
-                .collect::<Vec<String>>()
-                .join(",")
-            ;
+            match self.reenqueue(&connection, buffer) {
+                Ok(_) => {},
+                Err(e) => {
+                    println!("there was an error when reenqueuing");
+                    continue;
+                }
+            };
 
 
-
-            println!("yay, we've {} messages", buffer.len());
+            println!("successfully reenqueued {} messages", buffer.len());
 
         }
 
-        println!("finish");
+        println!("worker finish");
 
+    }
+
+    pub fn reenqueue(&self, con : &Connection, data : Vec<DequeueResult>) -> Result((), Box<::std::error::Error>) {
+
+        let data_buffer = data
+            .iter()
+            .map(|d : &DequeueResult| {
+                d.raw.clone()
+            })
+            .collect::<Vec<String>>()
+            .join(",")
+        ;
+
+        let mut buffer = String::from("{\"class\":\"FooJob\",\"args\":[");
+        buffer.write_str(&data_buffer)?;
+        buffer.write_str("]}")?;
+
+        let enqueue = ::redis::cmd("rpush")
+            .arg("resque:queue:default:foo")
+            .arg(&buffer)
+            .query(con)?;
+
+        Ok(())
     }
 
     pub fn dequeue(&self, con : &Connection) -> Result<Option<DequeueResult>, RedisError>
