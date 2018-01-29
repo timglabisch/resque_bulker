@@ -1,13 +1,13 @@
 use config::config_raw::RawConfig;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct QueueConfig {
     read_queue: String,
     write_queue: String,
     write_class: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Config {
     queue_configs: Vec<QueueConfig>
 }

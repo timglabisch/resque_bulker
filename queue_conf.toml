@@ -1,0 +1,4 @@
+[[queue_configs]]
+read_queue = "foo"
+write_queue = "foo_write"
+write_class = "FooClass"

@@ -30,12 +30,28 @@ lazy_static! {
 
 fn main() {
 
+
+    let config_raw = match ::config::config_raw::RawConfig::new() {
+        Ok(c) => c,
+        Err(err) => {
+            println!("could not read config file: {}", err);
+            return;
+        }
+    };
+
+    let config = match ::config::config::Config::from_raw_config(config_raw) {
+        Ok(c) => c,
+        Err(err) => {
+            println!("config file is not valid: {}", err);
+            return;
+        }
+    };
+
     // Signal gets a value when the OS sent a INT or TERM signal.
     let signal = chan_signal::notify(&[Signal::INT, Signal::TERM]);
     // When our work is complete, send a sentinel value on `sdone`.
     let (sdone, rdone) = chan::sync(0);
     // Run work.
-
 
 
     thread::spawn(move || do_main(sdone));

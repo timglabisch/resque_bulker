@@ -19,7 +19,7 @@ impl RawConfig {
     pub fn new() -> Result<RawConfig, Box<::std::error::Error>> {
 
         let mut buffer = String::new();
-        let mut file = File::open("queue_conf.toml")?;
+        let mut file = File::open("queue_conf.toml").map_err(|_|"could not read queue_conf.toml".to_string())?;
 
         file.read_to_string(&mut buffer)?;
 
