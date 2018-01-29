@@ -8,6 +8,7 @@ extern crate serde;
 extern crate serde_json;
 #[macro_use]
 extern crate lazy_static;
+extern crate toml;
 
 use redis::{Commands, PipelineCommands, transaction};
 use redis::RedisError;
@@ -18,6 +19,7 @@ mod worker;
 mod connection;
 use std::sync::atomic::AtomicBool;
 use worker::Worker;
+mod config;
 
 lazy_static! {
 
