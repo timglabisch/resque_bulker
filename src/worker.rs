@@ -1,7 +1,5 @@
 use redis::Connection;
 use connection::ConnectionFactory;
-use redis::PipelineCommands;
-use std::time::{SystemTime, Duration};
 use redis::RedisError;
 use std::thread;
 use std::fmt::Write;
@@ -56,7 +54,7 @@ impl Worker {
                     }
 
                     println!("sleep, and retry to get connection.");
-                    thread::sleep_ms(500);
+                    thread::sleep(::std::time::Duration::from_millis(500));
                     continue;
                 },
                 Ok(c) => c
@@ -78,7 +76,7 @@ impl Worker {
                         break;
                     },
                     Err(e) => {
-                        println!("error, could not dequeue");
+                        println!("error, could not dequeue {}", &e);
                         break 'main_dequeue_loop;
                     }
                 };

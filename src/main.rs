@@ -10,10 +10,7 @@ extern crate serde_json;
 extern crate lazy_static;
 extern crate toml;
 
-use redis::{Commands, PipelineCommands, transaction};
-use redis::RedisError;
 use std::thread;
-use std::time::Duration;
 use chan_signal::Signal;
 mod worker;
 mod connection;
@@ -39,7 +36,7 @@ fn main() {
         }
     };
 
-    let config = match ::config::config::Config::from_raw_config(config_raw) {
+    let _ = match ::config::config::Config::from_raw_config(config_raw) {
         Ok(c) => c,
         Err(err) => {
             println!("config file is not valid: {}", err);
